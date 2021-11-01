@@ -8,6 +8,8 @@ const int SCREEN_HEIGHT = 600;
 GLFWwindow* window;
 unsigned int shaderProgram;
 
+unsigned int triangleVAO;  // you can think of VAOs as object wrappers for VBOs that encapsulate all relevant data + attribute data to make swapping stuff to be rendered easier
+
 const char* vertShaderSource = "#version 460 core\n"
   "layout(location = 0) in vec3 aPos;\n"
   "void main() {\n"
@@ -77,12 +79,6 @@ void initializeShaderProgram() {
   glDeleteShader(fragmentShader);
 }
 
-void drawShape() {
-  
-
-  
-}
-
 int initializeGLFW() {
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -129,6 +125,7 @@ int main() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     // *******************************************************************************************************************************
+    // TODO: create a reusable vao factory kind of method so we can provide vertices & a vao reference to do this initialization work for us
     // *** VAO initialization ***
     float vertices[] = {
       -0.5f, -0.5f, 0.0f,
@@ -139,10 +136,9 @@ int main() {
     unsigned int VBO; // vertexBufferObject for sending large chunks of vertex data to the GPU
     glGenBuffers(1, &VBO); // assign our VBO an ID of 1
 
-    unsigned int VAO; // you can think of VAOs as object wrappers for VBOs that encapsulate all relevant data + attribute data to make swapping stuff to be rendered easier
-    glGenVertexArrays(1, &VAO);
+    glGenVertexArrays(1, &triangleVAO);
 
-    glBindVertexArray(VAO);
+    glBindVertexArray(triangleVAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO); // binding our VBO as the GL_ARRAY_BUFFER
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // copies vertices to the GL_ARRAY_BUFFER (which is currently bound to our VBO)
@@ -152,9 +148,8 @@ int main() {
     glEnableVertexAttribArray(0);
 
     // *** IN RENDER LOOP ***
-    
     glUseProgram(shaderProgram); // use shaderProgram for object being rendered
-    glBindVertexArray(VAO); // bind that objects VAO
+    glBindVertexArray(triangleVAO); // bind that objects VAO
     glDrawArrays(GL_TRIANGLES, 0, 3); // (shape type, vertex array starting index, number of shapes to draw)
     // *******************************************************************************************************************************
 
