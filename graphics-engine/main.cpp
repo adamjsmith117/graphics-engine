@@ -2,23 +2,29 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+const int SCREEN_WIDTH = 800;
+const int SCREEN_HEIGHT = 600;
 
-// Called by GLFW on window resize to dynamically update our glViewport
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+// called by GLFW on window resize to dynamically update our glViewport
+void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
   glViewport(0, 0, width, height);
 }
 
+// method for processing user input
+void processInput(GLFWwindow* window)
+{
+  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    glfwSetWindowShouldClose(window, true);
+}
+
 int main() {
-  // Init
+  // init
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  // Initialize glfw window + set context
   GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "graphics-engine", NULL, NULL);
   if (window == NULL) {
     std::cout << "Failed to create GLFW window" << std::endl;
@@ -27,25 +33,31 @@ int main() {
   }
   glfwMakeContextCurrent(window);
 
-  // Validate that GLAD has initialized
+  // validate that GLAD has initialized
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
   {
     std::cout << "Failed to initialize GLAD" << std::endl;
     return -1;
   }
 
-  // Set the OpenGL Viewport & register dynamic window resizing callback
+  // set the OpenGL Viewport & register dynamic window resizing callback
   glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+  glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 
-  // Run the render loop
+  // render loop
   while (!glfwWindowShouldClose(window))
   {
-    glfwSwapBuffers(window);
-    glfwPollEvents();
+    processInput(window);
+
+    // rendering commands go here...
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glfwPollEvents(); // polls for events like user input
+    glfwSwapBuffers(window); // sets the buffer to be rendered to window
   }
 
-  // Cleanup and terminate process
+  // cleanup and terminate process
   glfwTerminate();
   return 0;
 }
