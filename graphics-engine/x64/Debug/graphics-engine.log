@@ -1,4 +1,3 @@
 ﻿  glad.c
   main.cpp
-glfw3.lib(context.obj) : warning LNK4099: PDB 'glfw3.pdb' was not found with 'glfw3.lib(context.obj)' or at 'C:\Users\adam\Documents\graphics-engine\x64\Debug\glfw3.pdb'; linking object as if no debug info
   graphics-engine.vcxproj -> C:\Users\adam\Documents\graphics-engine\x64\Debug\graphics-engine.exe
