@@ -4,6 +4,7 @@
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
+
 GLFWwindow* window;
 unsigned int shaderProgram;
 
@@ -19,7 +20,7 @@ const char* fragShaderSource = "#version 460 core\n"
 "    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
 "}\0";
 
-// called by GLFW on window resize to dynamically update our glViewport
+/** called by GLFW on window resize to dynamically update our glViewport */
 void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
   glViewport(0, 0, width, height);
 }
@@ -68,6 +69,7 @@ void initializeShaderProgram() {
     std::cout << "ERROR: shaderProgram linking failed." << std::endl;
   }
 
+  // use this shaderProgram for this render
   glUseProgram(shaderProgram);
 
   // cleanup
@@ -75,18 +77,10 @@ void initializeShaderProgram() {
   glDeleteShader(fragmentShader);
 }
 
-void drawTriangle() {
-  // triangle verts
-  float vertices[] = {
-    -0.5f, -0.5f, 0.0f,
-     0.5f, -0.5f, 0.0f,
-     0.0f,  0.5f, 0.0f
-  };
+void drawShape() {
+  
 
-  unsigned int VBO; // vertexBufferObject for sending large chunks of vertex data to the GPU
-  glGenBuffers(1, &VBO); // assign our VBO an ID of 1
-  glBindBuffer(GL_ARRAY_BUFFER, VBO); // binding our VBO as the GL_ARRAY_BUFFER
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // sets vertices as the data to be stored in the GL_ARRAY_BUGGER, which has been bound to our VBO
+  
 }
 
 int initializeGLFW() {
@@ -131,7 +125,38 @@ int main() {
   while (!glfwWindowShouldClose(window)) {
     processInput(window);
 
-    drawTriangle();
+    glClearColor(0.0f, 0.2f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // *******************************************************************************************************************************
+    // *** VAO initialization ***
+    float vertices[] = {
+      -0.5f, -0.5f, 0.0f,
+       0.5f, -0.5f, 0.0f,
+       0.0f,  0.5f, 0.0f
+    };
+
+    unsigned int VBO; // vertexBufferObject for sending large chunks of vertex data to the GPU
+    glGenBuffers(1, &VBO); // assign our VBO an ID of 1
+
+    unsigned int VAO; // you can think of VAOs as object wrappers for VBOs that encapsulate all relevant data + attribute data to make swapping stuff to be rendered easier
+    glGenVertexArrays(1, &VAO);
+
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO); // binding our VBO as the GL_ARRAY_BUFFER
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // copies vertices to the GL_ARRAY_BUFFER (which is currently bound to our VBO)
+
+    // set dimensions of vert data being passed to shader so it knows how to interpret the buffer (and enable the attribArray)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // *** IN RENDER LOOP ***
+    
+    glUseProgram(shaderProgram); // use shaderProgram for object being rendered
+    glBindVertexArray(VAO); // bind that objects VAO
+    glDrawArrays(GL_TRIANGLES, 0, 3); // (shape type, vertex array starting index, number of shapes to draw)
+    // *******************************************************************************************************************************
 
     glfwPollEvents(); // polls for events like user input
     glfwSwapBuffers(window); // sets the buffer to be rendered to window
